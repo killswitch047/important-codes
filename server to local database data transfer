@@ -1,0 +1,76 @@
+import java.io.*;
+import java.io.FileWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+import java.sql.ResultSet;
+public class ServerToLocal {
+
+	 public static void main(String[] args) {
+		 
+		 	int i;
+		 	int colNum = 87;
+		 
+	        String server_jdbcURL = "jdbc:mysql://192.168.23.25:3306/RPT_EVER1201";
+	        String server_username = "devread";
+	        String server_password = "Xo15juoECUK7wH2Q";
+	         
+	        String csvFilePath = "D:/Work_folder/customer table/CUST_data.csv";
+	        
+	        String local_jdbcURL = "jdbc:mysql://127.0.0.1:3306/eveready_sstg";
+	        String local_username = "root";
+	        String local_password = "sam100694";
+	        
+	        	        
+	        try {
+	            FileWriter fw = new FileWriter(csvFilePath);
+	            Connection conn = DriverManager.getConnection(server_jdbcURL, server_username, server_password);
+	            String server_query = "select * from tbl_customer_data limit 10";
+	            Statement stmt = conn.createStatement();
+	            ResultSet rs = stmt.executeQuery(server_query);
+	            while (rs.next()) {
+	                
+	            	fw.append('"');
+	            	fw.append(rs.getString(1));
+	                fw.append('"');
+	            	
+	            	for(i=2;i<=colNum;i++)
+	            	{
+	            		fw.append(',');
+	            		fw.append('"');
+		                fw.append(rs.getString(i));
+		                fw.append('"');
+	            	}
+	            	fw.append('\n');	
+	            }
+	            fw.flush();
+	            fw.close();
+	            conn.close();
+	            System.out.println("CSV File is created successfully.");
+	            
+	            	            
+	            
+	            Connection conn2 = DriverManager.getConnection(local_jdbcURL, local_username, local_password);
+	            String local_query = "LOAD DATA INFILE 'D:/Work_folder/customer table/CUST_data.csv' INTO TABLE practice FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY \"\n\";";
+	            Statement stmt2 = conn2.createStatement();
+	            stmt2.executeQuery(local_query);
+	            
+	            conn2.close();
+	            System.out.println("CSV File is imported successfully.");            
+	   
+	        } 
+	        catch (Exception e) {
+	            e.printStackTrace();
+	        }
+	        
+	        File file = new File("D:/Work_folder/customer table/CUST_data.csv");		          
+	        if(file.delete())
+	        {
+	            System.out.println("File deleted successfully");
+	        }
+	        else
+	        {
+	            System.out.println("Failed to delete the file");
+	        }    
+	    }
+}
