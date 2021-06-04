@@ -1,0 +1,14 @@
+CREATE PROCEDURE `new_procedure` 
+(
+
+in username varchar(45),
+in city varchar(45),
+in phone varchar(45)
+
+)
+BEGIN
+
+insert into practice (username, city, phone)
+values (username, city, phone) ;
+
+END
